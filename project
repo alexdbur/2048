@@ -1,11 +1,9 @@
 import sys
-import time
 import random
 import os
 import pygame
 
 import pygame as pg
-from pygame.locals import Color, QUIT, MOUSEBUTTONDOWN, USEREVENT, USEREVENT
 from pygame import *
 from time import sleep
 
@@ -45,7 +43,7 @@ class Background(pg.sprite.Sprite):  # background sprite category
         self.height = 300
 
 
-class block(pg.sprite.Sprite):  # Wizard category of each block
+class Block(pg.sprite.Sprite):  # Wizard category of each block
     def __init__(self, width, height, x, y, image_index):
         super().__init__()
         # Load picture
@@ -57,18 +55,18 @@ class block(pg.sprite.Sprite):  # Wizard category of each block
         self.width = width
         self.height = height
 
-    def update(self, i, j, direction, finish_Animation, finishMoveAnimation):
+    def update(self, i, j, direction, finish_animation, finish_move_animation):
         global moveTable
         global table
         global newItemTable
         global oldTable
         bx, by = self.rect.topleft
-        if finish_Animation:
+        if finish_animation:
             self.rect.topleft = (10 + 64 * j + 8 * j + 1, 10 + 64 * i + 8 * i)
             # Move back first 10+64*j+8*j, 10+64*i+8*i
             self.image = imgTable[table[i][j]][0]
         else:
-            if not finishMoveAnimation:
+            if not finish_move_animation:
                 if moveTable[i][j] != 0:
                     if direction == 1:  # up
                         self.rect.topleft = (bx, by - 18)
@@ -107,7 +105,7 @@ BackGround = Background(os.path.join('pictures', 'bg.png'), [
     0, 0])  # Designated background property
 
 
-def Random_New_Item():
+def random_new_item():
     while True:
         for i in range(3, -1, -1):  # y
             for j in range(4):  # x
@@ -142,25 +140,25 @@ def init():
     # First generate a list of pictures
     for i in range(1, 12, 1):
         image_file = os.path.join('pictures', str(pow(2, i)) + '.png')
-        tmpRawImg = pg.image.load(image_file).convert_alpha()
-        tmpImg = pg.transform.smoothscale(tmpRawImg, (Image_W, Image_h))
-        imgTable[pow(2, i)].append(tmpImg)
+        tmp_raw_img = pg.image.load(image_file).convert_alpha()
+        tmp_img = pg.transform.smoothscale(tmp_raw_img, (Image_W, Image_h))
+        imgTable[pow(2, i)].append(tmp_img)
         for j in range(4):
-            tmpImg = pg.transform.smoothscale(tmpRawImg, ((j) * 16, (j) * 16))
-            imgTable[pow(2, i)].append(tmpImg)
+            tmp_img = pg.transform.smoothscale(tmp_raw_img, (j * 16, j * 16))
+            imgTable[pow(2, i)].append(tmp_img)
     # 0 plus
     image_file = os.path.join('pictures', '0.png')
-    tmpRawImg = pg.image.load(image_file).convert_alpha()
-    tmpImg = pg.transform.smoothscale(tmpRawImg, (Image_W, Image_h))
-    imgTable[0].append(tmpImg)
+    tmp_raw_img = pg.image.load(image_file).convert_alpha()
+    tmp_img = pg.transform.smoothscale(tmp_raw_img, (Image_W, Image_h))
+    imgTable[0].append(tmp_img)
     for j in range(4):
-        tmpImg = pg.transform.smoothscale(tmpRawImg, ((j) * 16, (j) * 16))
-        imgTable[0].append(tmpImg)
+        tmp_img = pg.transform.smoothscale(tmp_raw_img, (j * 16, j * 16))
+        imgTable[0].append(tmp_img)
 
     for i in range(4):
         for j in range(4):
             spriteTable[i].append(
-                block(Image_W, Image_h, 10 + 64 * j + 8 * j + 1, 10 + 64 * i + 8 * i, table[i][j]))
+                Block(Image_W, Image_h, 10 + 64 * j + 8 * j + 1, 10 + 64 * i + 8 * i, table[i][j]))
             allSprite.add(spriteTable[i][j])
 
 
@@ -171,7 +169,7 @@ def init():
 # 3,0 3,1 3,2 3,3
 
 
-def showGameOver(score):
+def show_game_over(score):
     # Add painting
     print("Game Over!")
     while True:
@@ -181,8 +179,8 @@ def showGameOver(score):
         text2 = font.render("Congratulations on your total: " + str(score) + " points", True, (255, 255, 255))
         text3 = font.render("Press [ENTER] to replay, [ESC] to close", True, (255, 255, 255))
         print(score)
-        for event in pg.event.get():
-            if event.type == pg.QUIT:  # Judgment to close the program
+        for EVENT in pg.event.get():
+            if EVENT.type == pg.QUIT:  # Judgment to close the program
                 return  # Code to close the program
 
         keys = pg.key.get_pressed()
@@ -201,78 +199,78 @@ def showGameOver(score):
     # os.execl(sys.executable, sys.executable, *sys.argv)
 
 
-def noMoreStep(table):
+def no_more_step(field):
     fulled = True
     for i in range(4):  # y
         for j in range(4):  # x
-            if table[i][j] == 0:
+            if field[i][j] == 0:
                 fulled = True
                 break
     if fulled:
         for i in range(3, 0, -1):  # y
             for j in range(4):  # x
-                if table[i][j] != 0:
-                    if table[i - 1][j] == table[i][j]:
+                if field[i][j] != 0:
+                    if field[i - 1][j] == field[i][j]:
                         return False
-                    if table[i - 1][j] == 0:
+                    if field[i - 1][j] == 0:
                         return False
         for i in range(3):  # y
             for j in range(4):  # x
-                if table[i][j] != 0:
-                    if table[i + 1][j] == table[i][j]:
+                if field[i][j] != 0:
+                    if field[i + 1][j] == field[i][j]:
                         return False
-                    if table[i + 1][j] == 0:
+                    if field[i + 1][j] == 0:
                         return False
         for i in range(3, 0, -1):  # x
             for j in range(4):  # y
-                if table[j][i] != 0:
-                    if table[j][i - 1] == table[j][i]:
+                if field[j][i] != 0:
+                    if field[j][i - 1] == field[j][i]:
                         return False
-                    if table[j][i - 1] == 0:
+                    if field[j][i - 1] == 0:
                         return False
         for i in range(3):  # x
             for j in range(4):  # y
-                if table[j][i] != 0:
-                    if table[j][i + 1] == table[j][i]:
+                if field[j][i] != 0:
+                    if field[j][i + 1] == field[j][i]:
                         return False
-                    if table[j][i + 1] == 0:
+                    if field[j][i + 1] == 0:
                         return False
         return True
 
 
-def movable(table, direction):
+def movable(field, direction):
     if direction == 1:
         for i in range(3, 0, -1):  # y
             for j in range(4):  # x
-                if table[i][j] != 0:
-                    if table[i - 1][j] == table[i][j]:
+                if field[i][j] != 0:
+                    if field[i - 1][j] == field[i][j]:
                         return True
-                    if table[i - 1][j] == 0:
+                    if field[i - 1][j] == 0:
                         return True
 
     elif direction == 2:
         for i in range(3):  # y
             for j in range(4):  # x
-                if table[i][j] != 0:
-                    if table[i + 1][j] == table[i][j]:
+                if field[i][j] != 0:
+                    if field[i + 1][j] == field[i][j]:
                         return True
-                    if table[i + 1][j] == 0:
+                    if field[i + 1][j] == 0:
                         return True
     elif direction == 3:
         for i in range(3, 0, -1):  # x
             for j in range(4):  # y
-                if table[j][i] != 0:
-                    if table[j][i - 1] == table[j][i]:
+                if field[j][i] != 0:
+                    if field[j][i - 1] == field[j][i]:
                         return True
-                    if table[j][i - 1] == 0:
+                    if field[j][i - 1] == 0:
                         return True
     else:
         for i in range(3):  # x
             for j in range(4):  # y
-                if table[j][i] != 0:
-                    if table[j][i + 1] == table[j][i]:
+                if field[j][i] != 0:
+                    if field[j][i + 1] == field[j][i]:
                         return True
-                    if table[j][i + 1] == 0:
+                    if field[j][i + 1] == 0:
                         return True
     return False
 
@@ -286,7 +284,7 @@ def move(direction):
             newItemTable[i][j] = 0
             moveTable[i][j] = 0
             oldTable[i][j] = table[i][j]
-    needMove = [[True for i in range(4)] for j in range(4)]
+    need_move = [[True for _ in range(4)] for _ in range(4)]
     if direction == 1:  # up
         # From top to bottom, left to right, arrange first
         for i in range(1, 4, 1):  # y
@@ -306,12 +304,12 @@ def move(direction):
         # From bottom to top, left to right, check
         for i in range(3, 0, -1):  # y
             for j in range(4):  # x
-                if needMove[i][j]:
+                if need_move[i][j]:
                     if table[i][j] == table[i - 1][j] and table[i][j] != 0:
                         # moveTable[i][j]+=1
                         table[i - 1][j] *= 2
                         newItemTable[i - 1][j] = 1
-                        needMove[i - 1][j] = False
+                        need_move[i - 1][j] = False
                         table[i][j] = 0
 
         # From top to bottom, left to right, organized
@@ -345,12 +343,12 @@ def move(direction):
         # From top to bottom, left to right, check
         for i in range(3):  # y
             for j in range(4):  # x
-                if needMove[i][j]:
+                if need_move[i][j]:
                     if table[i][j] == table[i + 1][j] and table[i][j] != 0:
                         # moveTable[i][j]+=1
                         table[i + 1][j] *= 2
                         newItemTable[i + 1][j] = 1
-                        needMove[i + 1][j] = False
+                        need_move[i + 1][j] = False
                         table[i][j] = 0
 
         # From bottom to top, left to right, organized
@@ -383,12 +381,12 @@ def move(direction):
         # From again to left, from top to bottom, check
         for i in range(3, 0, -1):  # x
             for j in range(4):  # y
-                if needMove[j][i]:
+                if need_move[j][i]:
                     if table[j][i] == table[j][i - 1] and table[j][i] != 0:
                         # moveTable[i][j]+=1
                         table[j][i - 1] *= 2
                         newItemTable[j][i - 1] = 1
-                        needMove[j][i - 1] = False
+                        need_move[j][i - 1] = False
                         table[j][i] = 0
 
         # From left to again, from top to bottom, organized
@@ -420,12 +418,12 @@ def move(direction):
         print("right")
         for i in range(3):  # x
             for j in range(4):  # y
-                if needMove[j][i]:
+                if need_move[j][i]:
                     if table[j][i] == table[j][i + 1] and table[j][i] != 0:
                         # moveTable[i][j]+=1
                         table[j][i + 1] *= 2
                         newItemTable[j][i + 1] = 1
-                        needMove[j][i + 1] = False
+                        need_move[j][i + 1] = False
                         table[j][i] = 0
 
         # From again to left, from top to bottom, organized
@@ -440,13 +438,12 @@ def move(direction):
                             newItemTable[j][i + 1] = 1
                             newItemTable[j][i] = 0
 
-    x, y = Random_New_Item()
+    x, y = random_new_item()
     newItemTable[x][y] = 1
 
 
 def main():
     init()
-    global back_ground
     global table
     direction = 0
     finish_animation = True
@@ -515,13 +512,13 @@ def main():
                     spriteTable[i][j].update(
                         i, j, direction, finish_animation, finish_move_animation)
                     score += table[i][j]
-            if noMoreStep(table):
+            if no_more_step(table):
                 for i in range(4):  # y
                     for j in range(4):  # x
                         table[i][j] = 0
                         spriteTable[i][j].update(i, j, direction, True, True)
                 sleep(2)
-                showGameOver(score)
+                show_game_over(score)
                 return
         else:
             keys = pg.key.get_pressed()
